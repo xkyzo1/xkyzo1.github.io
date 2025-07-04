@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Market Dashboard</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
     <header class="header">
@@ -16,27 +17,27 @@
             <a href="#" class="nav-link">Markets</a>
         </nav>
         <div class="user-menu">
-            <span class="username">John Doe</span>
-            <div class="balance">$25,000.00</div>
+            <span class="username">xkyzo1</span>
+            <div class="balance">Rp 25,000,000</div>
         </div>
     </header>
 
     <main class="main-content">
         <section class="market-overview">
             <div class="stock-ticker">
-                <div class="ticker-item">
-                    <span class="symbol">AAPL</span>
-                    <span class="price increase">$150.25</span>
+                <div class="ticker-item clickable" data-symbol="BBCA">
+                    <span class="symbol">BBCA</span>
+                    <span class="price increase">Rp 9,450</span>
                     <span class="change">+2.5%</span>
                 </div>
-                <div class="ticker-item">
-                    <span class="symbol">GOOGL</span>
-                    <span class="price decrease">$2,680.75</span>
+                <div class="ticker-item clickable" data-symbol="BBRI">
+                    <span class="symbol">BBRI</span>
+                    <span class="price decrease">Rp 5,525</span>
                     <span class="change">-1.2%</span>
                 </div>
-                <div class="ticker-item">
-                    <span class="symbol">TSLA</span>
-                    <span class="price increase">$875.90</span>
+                <div class="ticker-item clickable" data-symbol="ASII">
+                    <span class="symbol">ASII</span>
+                    <span class="price increase">Rp 6,875</span>
                     <span class="change">+3.8%</span>
                 </div>
             </div>
@@ -45,23 +46,20 @@
         <div class="dashboard-grid">
             <section class="chart-section">
                 <div class="chart-header">
-                    <h2>AAPL</h2>
+                    <h2 id="selected-symbol">BBCA</h2>
                     <div class="price-info">
-                        <span class="current-price">$150.25</span>
-                        <span class="price-change increase">+$3.75 (2.5%)</span>
+                        <span class="current-price">Rp 9,450</span>
+                        <span class="price-change increase">+Rp 225 (2.5%)</span>
                     </div>
                 </div>
-                <div class="chart-container">
-                    <!-- Chart placeholder -->
-                    <div class="chart-placeholder"></div>
-                </div>
+                <div class="chart-container" id="chart"></div>
                 <div class="chart-controls">
-                    <button class="time-button active">1D</button>
-                    <button class="time-button">1W</button>
-                    <button class="time-button">1M</button>
-                    <button class="time-button">3M</button>
-                    <button class="time-button">1Y</button>
-                    <button class="time-button">ALL</button>
+                    <button class="time-button" data-interval="1D">1D</button>
+                    <button class="time-button" data-interval="1W">1W</button>
+                    <button class="time-button active" data-interval="1M">1M</button>
+                    <button class="time-button" data-interval="3M">3M</button>
+                    <button class="time-button" data-interval="1Y">1Y</button>
+                    <button class="time-button" data-interval="ALL">ALL</button>
                 </div>
             </section>
 
@@ -69,22 +67,22 @@
                 <div class="trade-card">
                     <h3>Quick Trade</h3>
                     <div class="trade-input">
-                        <label>Quantity</label>
-                        <input type="number" value="1" min="1">
+                        <label>Lot</label>
+                        <input type="number" id="quantity" value="1" min="1">
                     </div>
                     <div class="trade-info">
                         <div class="info-row">
                             <span>Market Price</span>
-                            <span>$150.25</span>
+                            <span id="market-price">Rp 9,450</span>
                         </div>
                         <div class="info-row">
                             <span>Total Value</span>
-                            <span>$150.25</span>
+                            <span id="total-value">Rp 9,450,000</span>
                         </div>
                     </div>
                     <div class="trade-buttons">
-                        <button class="buy-button">Buy</button>
-                        <button class="sell-button">Sell</button>
+                        <button class="buy-button" onclick="executeTrade('buy')">Buy</button>
+                        <button class="sell-button" onclick="executeTrade('sell')">Sell</button>
                     </div>
                 </div>
             </section>
@@ -92,33 +90,33 @@
             <section class="watchlist-section">
                 <h3>Watchlist</h3>
                 <div class="watchlist">
-                    <div class="watchlist-item">
+                    <div class="watchlist-item clickable" data-symbol="BBCA">
                         <div class="stock-info">
-                            <span class="symbol">AAPL</span>
-                            <span class="company">Apple Inc.</span>
+                            <span class="symbol">BBCA</span>
+                            <span class="company">Bank Central Asia</span>
                         </div>
                         <div class="price-info">
-                            <span class="price increase">$150.25</span>
+                            <span class="price increase">Rp 9,450</span>
                             <span class="change">+2.5%</span>
                         </div>
                     </div>
-                    <div class="watchlist-item">
+                    <div class="watchlist-item clickable" data-symbol="BBRI">
                         <div class="stock-info">
-                            <span class="symbol">GOOGL</span>
-                            <span class="company">Alphabet Inc.</span>
+                            <span class="symbol">BBRI</span>
+                            <span class="company">Bank Rakyat Indonesia</span>
                         </div>
                         <div class="price-info">
-                            <span class="price decrease">$2,680.75</span>
+                            <span class="price decrease">Rp 5,525</span>
                             <span class="change">-1.2%</span>
                         </div>
                     </div>
-                    <div class="watchlist-item">
+                    <div class="watchlist-item clickable" data-symbol="ASII">
                         <div class="stock-info">
-                            <span class="symbol">TSLA</span>
-                            <span class="company">Tesla, Inc.</span>
+                            <span class="symbol">ASII</span>
+                            <span class="company">Astra International</span>
                         </div>
                         <div class="price-info">
-                            <span class="price increase">$875.90</span>
+                            <span class="price increase">Rp 6,875</span>
                             <span class="change">+3.8%</span>
                         </div>
                     </div>
@@ -126,5 +124,6 @@
             </section>
         </div>
     </main>
+    <script src="script.js"></script>
 </body>
 </html>
