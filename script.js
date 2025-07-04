@@ -1,156 +1,170 @@
-// Fungsi untuk menghasilkan data candlestick acak
-function generateCandlestickData(days = 30) {
-    const data = [];
-    let basePrice = 9450; // Harga dasar BBCA
-    const today = new Date();
-    
-    for (let i = days; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        
-        const open = basePrice * (1 + (Math.random() - 0.5) * 0.02);
-        const high = open * (1 + Math.random() * 0.015);
-        const low = open * (1 - Math.random() * 0.015);
-        const close = (high + low) / 2;
-        
-        basePrice = close;
-        
-        data.push({
-            time: date.getTime() / 1000,
-            open: open,
-            high: high,
-            low: low,
-            close: close,
-            volume: Math.floor(Math.random() * 1000000)
-        });
-    }
-    return data;
+// -- Data Dummy Price dan Chart Crypto --
+const cryptoData = {
+  BTC: {
+    name: 'Bitcoin',
+    price: 67500,
+    change: 2.1,
+    changePositive: true,
+    currency: '$',
+    logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+    decimals: 2
+  },
+  ETH: {
+    name: 'Ethereum',
+    price: 3470,
+    change: -1.2,
+    changePositive: false,
+    currency: '$',
+    logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+    decimals: 2
+  },
+  SOL: {
+    name: 'Solana',
+    price: 146.2,
+    change: 4.8,
+    changePositive: true,
+    currency: '$',
+    logo: 'https://cryptologos.cc/logos/solana-sol-logo.png',
+    decimals: 2
+  }
+};
+
+// Generate random OHLC for chart
+function generateCandlestickData(basePrice, days = 30, decimals = 2) {
+  const data = [];
+  let price = basePrice;
+  const today = new Date();
+  for (let i = days; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    const open = +(price * (1 + (Math.random() - 0.5) * 0.03)).toFixed(decimals);
+    let high = +(open * (1 + Math.random() * 0.02)).toFixed(decimals);
+    let low = +(open * (1 - Math.random() * 0.02)).toFixed(decimals);
+    if (low > high) [low, high] = [high, low];
+    const close = +(low + Math.random() * (high - low)).toFixed(decimals);
+    price = close;
+    data.push({
+      time: Math.floor(date.getTime() / 1000),
+      open, high, low, close
+    });
+  }
+  return data;
 }
 
-// Inisialisasi chart
-const chartContainer = document.getElementById('chart');
-const chart = LightweightCharts.createChart(chartContainer, {
-    width: chartContainer.clientWidth,
-    height: 400,
-    layout: {
-        backgroundColor: '#2d2d2d',
-        textColor: '#d1d4dc',
-    },
-    grid: {
-        vertLines: {
-            color: 'rgba(42, 46, 57, 0.5)',
-        },
-        horzLines: {
-            color: 'rgba(42, 46, 57, 0.5)',
-        },
-    },
-    crosshair: {
-        mode: LightweightCharts.CrosshairMode.Normal,
-    },
-    rightPriceScale: {
-        borderColor: 'rgba(197, 203, 206, 0.8)',
-    },
-    timeScale: {
-        borderColor: 'rgba(197, 203, 206, 0.8)',
-    },
-});
+// Chart
+let chart, candlestickSeries;
+function initChart(symbol, interval = '1M') {
+  const chartContainer = document.getElementById('chart');
+  chartContainer.innerHTML = '';
+  chart = LightweightCharts.createChart(chartContainer, {
+    width: chartContainer.offsetWidth,
+    height: chartContainer.offsetHeight,
+    layout: { background: { color: '#232834' }, textColor: '#fff' },
+    grid: { vertLines: { color: 'rgba(42, 46, 57, 0.3)' },
+            horzLines: { color: 'rgba(42, 46, 57, 0.3)' } },
+    crosshair: { mode: 0 },
+    rightPriceScale: { borderColor: 'rgba(197, 203, 206, 0.4)' },
+    timeScale: { borderColor: 'rgba(197, 203, 206, 0.4)' }
+  });
+  candlestickSeries = chart.addCandlestickSeries({
+    upColor: '#00e284', downColor: '#ff3d00',
+    borderUpColor: '#00e284', borderDownColor: '#ff3d00',
+    wickUpColor: '#00e284', wickDownColor: '#ff3d00'
+  });
+  updateChartData(symbol, interval);
+}
+function updateChartData(symbol, interval) {
+  let days;
+  switch(interval) {
+    case '1D': days = 1; break;
+    case '1W': days = 7; break;
+    case '1M': days = 30; break;
+    case '3M': days = 90; break;
+    case '1Y': days = 365; break;
+    default: days = 30;
+  }
+  const base = cryptoData[symbol].price;
+  const dec = cryptoData[symbol].decimals;
+  candlestickSeries.setData(generateCandlestickData(base, days, dec));
+}
 
-// Menambahkan candlestick series
-const candlestickSeries = chart.addCandlestickSeries({
-    upColor: '#00c853',
-    downColor: '#ff3d00',
-    borderDownColor: '#ff3d00',
-    borderUpColor: '#00c853',
-    wickDownColor: '#ff3d00',
-    wickUpColor: '#00c853',
-});
+// UI & Interaksi
+let selectedSymbol = 'BTC';
+let selectedInterval = '1M';
 
-// Menambahkan volume series
-const volumeSeries = chart.addHistogramSeries({
-    color: '#26a69a',
-    priceFormat: {
-        type: 'volume',
-    },
-    priceScaleId: '',
-    scaleMargins: {
-        top: 0.8,
-        bottom: 0,
-    },
-});
+function updateUI(symbol) {
+  const data = cryptoData[symbol];
+  document.getElementById('selected-symbol').textContent = symbol;
+  document.getElementById('current-price').textContent = data.currency + data.price.toLocaleString();
+  document.getElementById('market-price').textContent = data.currency + data.price.toLocaleString();
+  document.getElementById('current-change').textContent = (data.change > 0 ? '+' : '') + data.change + '%';
+  document.getElementById('current-change').className = 'price-change ' + (data.change > 0 ? 'increase' : 'decrease');
+  document.querySelectorAll('.ticker-item, .watchlist-item').forEach(item=>{
+    item.classList.remove('active');
+    if(item.getAttribute('data-symbol') === symbol) item.classList.add('active');
+  });
+  updateTotalValue();
+}
 
-// Set data awal
-const initialData = generateCandlestickData();
-candlestickSeries.setData(initialData);
-
-// Event listener untuk responsive chart
-window.addEventListener('resize', () => {
-    chart.applyOptions({
-        width: chartContainer.clientWidth,
-    });
-});
-
-// Event listener untuk tombol interval waktu
-document.querySelectorAll('.time-button').forEach(button => {
-    button.addEventListener('click', () => {
-        // Hapus kelas active dari semua tombol
-        document.querySelectorAll('.time-button').forEach(btn => btn.classList.remove('active'));
-        // Tambah kelas active ke tombol yang diklik
-        button.classList.add('active');
-        
-        // Generate data baru berdasarkan interval
-        const interval = button.dataset.interval;
-        let days;
-        switch(interval) {
-            case '1D': days = 1; break;
-            case '1W': days = 7; break;
-            case '1M': days = 30; break;
-            case '3M': days = 90; break;
-            case '1Y': days = 365; break;
-            case 'ALL': days = 730; break;
-            default: days = 30;
-        }
-        
-        const newData = generateCandlestickData(days);
-        candlestickSeries.setData(newData);
-    });
-});
-
-// Fungsi untuk update harga total
 function updateTotalValue() {
-    const quantity = document.getElementById('quantity').value;
-    const price = parseFloat(document.getElementById('market-price').textContent.replace('Rp ', '').replace(',', ''));
-    const total = quantity * price * 100; // 1 lot = 100 lembar saham
-    document.getElementById('total-value').textContent = `Rp ${total.toLocaleString()}`;
+  const qty = parseFloat(document.getElementById('quantity').value);
+  const price = cryptoData[selectedSymbol].price;
+  const currency = cryptoData[selectedSymbol].currency;
+  const total = qty * price;
+  document.getElementById('total-value').textContent = currency + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:8});
 }
 
-// Event listener untuk input quantity
+// Toast
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || "#232834f2";
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 1800);
+}
+
+// Event: pilih crypto di ticker/watchlist
+document.querySelectorAll('.ticker-item, .watchlist-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    const symbol = item.getAttribute('data-symbol');
+    selectedSymbol = symbol;
+    updateUI(symbol);
+    updateChartData(symbol, selectedInterval);
+  });
+});
+
+// Event: interval chart
+document.querySelectorAll('.time-button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.time-button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedInterval = btn.getAttribute('data-interval');
+    updateChartData(selectedSymbol, selectedInterval);
+  });
+});
+
+// Event: input amount
 document.getElementById('quantity').addEventListener('input', updateTotalValue);
 
-// Fungsi untuk eksekusi trading
-function executeTrade(type) {
-    const quantity = document.getElementById('quantity').value;
-    const price = document.getElementById('market-price').textContent;
-    const total = document.getElementById('total-value').textContent;
-    
-    alert(`${type.toUpperCase()} Order:
-Quantity: ${quantity} lot
-Price: ${price}
-Total: ${total}`);
+// Event: Buy/Sell
+document.getElementById('buy-btn').onclick = ()=> {
+  const qty = document.getElementById('quantity').value;
+  showToast(`Buy ${qty} ${selectedSymbol} success!`, "#00e284");
+}
+document.getElementById('sell-btn').onclick = ()=> {
+  const qty = document.getElementById('quantity').value;
+  showToast(`Sell ${qty} ${selectedSymbol} success!`, "#ff3d00");
 }
 
-// Event listener untuk item yang bisa diklik
-document.querySelectorAll('.clickable').forEach(item => {
-    item.addEventListener('click', () => {
-        const symbol = item.dataset.symbol;
-        document.getElementById('selected-symbol').textContent = symbol;
-        
-        // Update chart dengan data baru
-        const newData = generateCandlestickData();
-        candlestickSeries.setData(newData);
-        
-        // Update harga di trading card
-        const price = item.querySelector('.price').textContent;
-        document.getElementById('market-price').textContent = price;
-        updateTotalValue();
-    });
+// Responsive: Chart resize
+window.addEventListener('resize', ()=>{
+  if(chart) {
+    chart.applyOptions({ width: document.getElementById('chart').offsetWidth });
+  }
 });
+
+// Inisialisasi awal
+window.onload = ()=>{
+  initChart(selectedSymbol, selectedInterval);
+  updateUI(selectedSymbol);
+};
