@@ -3,122 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Market Dashboard</title>
+    <title>Crypto Trading Dashboard</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <div class="time-banner">
+        <span id="current-time">2025-07-04 09:01:15 UTC</span>
+        <span class="user-info"><i class="fas fa-user"></i> xkyzo1</span>
+    </div>
+    
     <header class="header">
-        <div class="logo">StockPro</div>
+        <div class="logo">
+            <i class="fab fa-bitcoin"></i> CryptoTrade
+        </div>
         <nav class="nav">
-            <a href="#" class="nav-link active">Dashboard</a>
-            <a href="#" class="nav-link">Portfolio</a>
-            <a href="#" class="nav-link">Watchlist</a>
-            <a href="#" class="nav-link">Markets</a>
+            <a href="#" class="nav-link active"><i class="fas fa-chart-line"></i> Trading</a>
+            <a href="#" class="nav-link"><i class="fas fa-wallet"></i> Portfolio</a>
+            <a href="#" class="nav-link"><i class="fas fa-star"></i> Watchlist</a>
+            <a href="#" class="nav-link"><i class="fas fa-globe"></i> Markets</a>
         </nav>
         <div class="user-menu">
-            <span class="username">xkyzo1</span>
-            <div class="balance">Rp 25,000,000</div>
+            <div class="balance">
+                <span class="balance-label">Balance</span>
+                <span class="balance-amount">$25,000.00</span>
+            </div>
         </div>
     </header>
 
     <main class="main-content">
         <section class="market-overview">
-            <div class="stock-ticker">
-                <div class="ticker-item clickable" data-symbol="BBCA">
-                    <span class="symbol">BBCA</span>
-                    <span class="price increase">Rp 9,450</span>
-                    <span class="change">+2.5%</span>
-                </div>
-                <div class="ticker-item clickable" data-symbol="BBRI">
-                    <span class="symbol">BBRI</span>
-                    <span class="price decrease">Rp 5,525</span>
-                    <span class="change">-1.2%</span>
-                </div>
-                <div class="ticker-item clickable" data-symbol="ASII">
-                    <span class="symbol">ASII</span>
-                    <span class="price increase">Rp 6,875</span>
-                    <span class="change">+3.8%</span>
-                </div>
+            <div class="stock-ticker" id="crypto-ticker">
+                <!-- Crypto tickers will be added here dynamically -->
             </div>
         </section>
 
         <div class="dashboard-grid">
             <section class="chart-section">
                 <div class="chart-header">
-                    <h2 id="selected-symbol">BBCA</h2>
-                    <div class="price-info">
-                        <span class="current-price">Rp 9,450</span>
-                        <span class="price-change increase">+Rp 225 (2.5%)</span>
+                    <div class="symbol-info">
+                        <h2 id="selected-symbol">BTC/USDT</h2>
+                        <span class="symbol-price">
+                            <span id="live-price">$35,420.50</span>
+                            <span id="price-change" class="increase">+5.2%</span>
+                        </span>
+                    </div>
+                    <div class="chart-options">
+                        <div class="chart-type-selector">
+                            <button class="chart-type-btn active" data-type="candlestick">
+                                <i class="fas fa-chart-line"></i> Candlestick
+                            </button>
+                            <button class="chart-type-btn" data-type="line">
+                                <i class="fas fa-chart-area"></i> Line
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="chart-container" id="chart"></div>
                 <div class="chart-controls">
-                    <button class="time-button" data-interval="1D">1D</button>
-                    <button class="time-button" data-interval="1W">1W</button>
-                    <button class="time-button active" data-interval="1M">1M</button>
-                    <button class="time-button" data-interval="3M">3M</button>
-                    <button class="time-button" data-interval="1Y">1Y</button>
-                    <button class="time-button" data-interval="ALL">ALL</button>
+                    <button class="time-button" data-interval="1m">1m</button>
+                    <button class="time-button" data-interval="5m">5m</button>
+                    <button class="time-button" data-interval="15m">15m</button>
+                    <button class="time-button active" data-interval="1h">1H</button>
+                    <button class="time-button" data-interval="4h">4H</button>
+                    <button class="time-button" data-interval="1d">1D</button>
+                    <button class="time-button" data-interval="1w">1W</button>
+                </div>
+                <div class="chart-indicators">
+                    <button class="indicator-btn" data-indicator="ma">MA</button>
+                    <button class="indicator-btn" data-indicator="ema">EMA</button>
+                    <button class="indicator-btn" data-indicator="rsi">RSI</button>
+                    <button class="indicator-btn" data-indicator="macd">MACD</button>
                 </div>
             </section>
 
             <section class="trade-section">
                 <div class="trade-card">
-                    <h3>Quick Trade</h3>
-                    <div class="trade-input">
-                        <label>Lot</label>
-                        <input type="number" id="quantity" value="1" min="1">
+                    <div class="trade-tabs">
+                        <button class="tab-btn active" data-tab="spot">Spot</button>
+                        <button class="tab-btn" data-tab="margin">Margin</button>
+                        <button class="tab-btn" data-tab="futures">Futures</button>
                     </div>
-                    <div class="trade-info">
-                        <div class="info-row">
-                            <span>Market Price</span>
-                            <span id="market-price">Rp 9,450</span>
+                    <div class="trade-content active" id="spot-trade">
+                        <div class="trade-type-switch">
+                            <button class="trade-type-btn active" data-type="limit">Limit</button>
+                            <button class="trade-type-btn" data-type="market">Market</button>
                         </div>
-                        <div class="info-row">
-                            <span>Total Value</span>
-                            <span id="total-value">Rp 9,450,000</span>
+                        <div class="trade-input">
+                            <label>Amount USDT</label>
+                            <div class="input-with-buttons">
+                                <input type="number" id="trade-amount" value="100" min="0" step="10">
+                                <div class="quick-amounts">
+                                    <button data-amount="25">25%</button>
+                                    <button data-amount="50">50%</button>
+                                    <button data-amount="75">75%</button>
+                                    <button data-amount="100">100%</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="trade-buttons">
-                        <button class="buy-button" onclick="executeTrade('buy')">Buy</button>
-                        <button class="sell-button" onclick="executeTrade('sell')">Sell</button>
+                        <div class="price-input">
+                            <label>Price USDT</label>
+                            <input type="number" id="trade-price" value="35420.50">
+                        </div>
+                        <div class="trade-info">
+                            <div class="info-row">
+                                <span>Total</span>
+                                <span id="trade-total">$100.00</span>
+                            </div>
+                            <div class="info-row">
+                                <span>Fee (0.1%)</span>
+                                <span id="trade-fee">$0.10</span>
+                            </div>
+                        </div>
+                        <div class="trade-buttons">
+                            <button class="buy-button" onclick="executeTrade('buy')">
+                                <i class="fas fa-arrow-up"></i> Buy BTC
+                            </button>
+                            <button class="sell-button" onclick="executeTrade('sell')">
+                                <i class="fas fa-arrow-down"></i> Sell BTC
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section class="watchlist-section">
-                <h3>Watchlist</h3>
-                <div class="watchlist">
-                    <div class="watchlist-item clickable" data-symbol="BBCA">
-                        <div class="stock-info">
-                            <span class="symbol">BBCA</span>
-                            <span class="company">Bank Central Asia</span>
+            <section class="market-data-section">
+                <div class="market-card">
+                    <h3>Market Data</h3>
+                    <div class="market-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">24h High</span>
+                            <span class="stat-value" id="24h-high">$36,750.00</span>
                         </div>
-                        <div class="price-info">
-                            <span class="price increase">Rp 9,450</span>
-                            <span class="change">+2.5%</span>
+                        <div class="stat-item">
+                            <span class="stat-label">24h Low</span>
+                            <span class="stat-value" id="24h-low">$34,200.00</span>
                         </div>
-                    </div>
-                    <div class="watchlist-item clickable" data-symbol="BBRI">
-                        <div class="stock-info">
-                            <span class="symbol">BBRI</span>
-                            <span class="company">Bank Rakyat Indonesia</span>
+                        <div class="stat-item">
+                            <span class="stat-label">24h Volume</span>
+                            <span class="stat-value" id="24h-volume">12,456 BTC</span>
                         </div>
-                        <div class="price-info">
-                            <span class="price decrease">Rp 5,525</span>
-                            <span class="change">-1.2%</span>
+                        <div class="stat-item">
+                            <span class="stat-label">Market Cap</span>
+                            <span class="stat-value" id="market-cap">$680.5B</span>
                         </div>
                     </div>
-                    <div class="watchlist-item clickable" data-symbol="ASII">
-                        <div class="stock-info">
-                            <span class="symbol">ASII</span>
-                            <span class="company">Astra International</span>
-                        </div>
-                        <div class="price-info">
-                            <span class="price increase">Rp 6,875</span>
-                            <span class="change">+3.8%</span>
-                        </div>
+                </div>
+                <div class="order-book">
+                    <h3>Order Book</h3>
+                    <div class="book-headers">
+                        <span>Price</span>
+                        <span>Amount</span>
+                        <span>Total</span>
+                    </div>
+                    <div class="sell-orders" id="sell-orders">
+                        <!-- Sell orders will be added here dynamically -->
+                    </div>
+                    <div class="price-indicator">
+                        <span class="current-price" id="ob-current-price">35,420.50</span>
+                        <span class="price-change increase">+1,840.50 (+5.2%)</span>
+                    </div>
+                    <div class="buy-orders" id="buy-orders">
+                        <!-- Buy orders will be added here dynamically -->
                     </div>
                 </div>
             </section>
