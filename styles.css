@@ -88,6 +88,17 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.ticker-item.clickable {
+    cursor: pointer;
+}
+
+.ticker-item.clickable:hover {
+    background-color: var(--card-bg);
 }
 
 .symbol {
@@ -130,16 +141,10 @@ body {
     font-weight: bold;
 }
 
-.chart-placeholder {
+.chart-container {
     width: 100%;
     height: 400px;
-    background: linear-gradient(45deg, var(--secondary-bg) 25%, transparent 25%),
-                linear-gradient(-45deg, var(--secondary-bg) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, var(--secondary-bg) 75%),
-                linear-gradient(-45deg, transparent 75%, var(--secondary-bg) 75%);
-    background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-    border-radius: 4px;
+    position: relative;
 }
 
 .chart-controls {
@@ -245,8 +250,17 @@ body {
 .watchlist-item {
     display: flex;
     justify-content: space-between;
-    padding: 1rem 0;
+    padding: 1rem;
     border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
+}
+
+.watchlist-item.clickable {
+    cursor: pointer;
+}
+
+.watchlist-item.clickable:hover {
+    background-color: var(--secondary-bg);
 }
 
 .stock-info {
